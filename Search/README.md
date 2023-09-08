@@ -17,7 +17,7 @@ different files if player.py imports correctly and without errors each of them.
 
 You can refer to the following section if you do not have anaconda installed or if you want to keep control of your installation.
 
-Download the skeleton.zip archive and unzip it in the folder of your choice with full path <Skeleton Full Path>.
+Download the skeleton.zip archive and unzip it in the folder of your choice with full path `<Skeleton Full Path>`.
  
 ## Installation
 
@@ -29,9 +29,17 @@ Then move to the skeleton directory by using the command
 ```
 $ cd <Skeleton Full Path>
 ```
-Run the command
+Activate the conda environment
 ```
-$ pip install -r requirements_win.txt
+$ conda activate fishingderby
+```
+Run the command (Windows)
+```
+(fishingderby) $ pip install -r requirements_win.txt
+```
+or the command (UNIX)
+```
+(fishingderby) $ pip install -r requirements.txt
 ```
 to end the installation.
 
@@ -40,17 +48,23 @@ to end the installation.
 Open an Anaconda prompt and enter the command
 ```
 $ conda activate fishingderby
-$ cd <Skeleton Full Path>
-$ python main.py settings.yml
+(fishingderby) $ cd <Skeleton Full Path>
+(fishingderby) $ python main.py settings.yml
 ```
 
-# Manual Installation
+# Manual Installation and run
+
 The code runs in Python 3.7 AMD64 or Python 3.6 AMD64.
 
-You should start with a clean virtual environment and install the
-requirements for the code to run.
+## Installation
 
-In UNIX, in the skeleton directory, run:
+You should start with a clean virtual environment and install the
+requirements for the code to run. Below there is an example, but
+you may create a Python 3.6 or Python 3.7 environment and install 
+the required packages (`requirements.txt` for UNIX or `requirements_win.txt`
+for Windows) as you find more convenient.
+
+In Ubuntu, in the skeleton directory, run:
 
 ```
 $ sudo pip install virtualenvwrapper
@@ -193,3 +207,11 @@ interface. You can start with:
 To play yourself using the keyboard (left, right, up, down), change the variable "player_type" in "settings.yml" to the value "human".
 
 Note that can change the scenario of the game! In order to do so change "observations_file" in settings.yml.
+
+## Run the program
+
+To run the program, just activate the virtual environment `fishingderby` and run the following command in the `<Skeleton Full Path>`:
+
+```
+(fishingderby) $ python main.py settings.yml
+```
