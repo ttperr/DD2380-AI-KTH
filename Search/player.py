@@ -65,5 +65,37 @@ class PlayerControllerMinimax(PlayerController):
         # NOTE: Don't forget to initialize the children of the current node
         #       with its compute_and_get_children() method!
 
+        children = initial_tree_node.compute_and_get_children()
+    
+
         random_move = random.randrange(5)
         return ACTION_TO_STR[random_move]
+    
+    def minimax(self, state, player, depth = 2):
+
+        """
+        Minimax algorithm for the game
+        :param state: current state of the game
+        :param player: current player
+        :param depth: depth maximum to go down the tree
+        :return: best action"""
+
+        """
+        if depth == 0 or actions(state, player) == None:
+            return 
+        else
+            if player == 0:
+                value = float("-inf")
+                best_action = None
+                for action in actions(state, player)):
+                    v = self.minimax(action, 1, depth-1)
+                    value = max(value, self.minimax(child, 1, depth-1))
+                return best_action
+            else:
+                value = float("inf")
+                best_action = None
+                for action in actions(state, player)):
+                    value = min(value, self.minimax(child, 0, depth-1))
+                return best_action
+        """
+        pass
