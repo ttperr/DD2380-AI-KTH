@@ -65,37 +65,42 @@ class PlayerControllerMinimax(PlayerController):
         # NOTE: Don't forget to initialize the children of the current node
         #       with its compute_and_get_children() method!
 
-        children = initial_tree_node.compute_and_get_children()
-    
-
         random_move = random.randrange(5)
         return ACTION_TO_STR[random_move]
-    
-    def minimax(self, state, player, depth = 2):
 
+    def alphabeta(self, state, depth, alpha, beta, player):
         """
-        Minimax algorithm for the game
-        :param state: current state of the game
-        :param player: current player
+        Alpha beta pruning algorithm for the game
+        :param state: current state
+        :param children: possible actions from the current state
         :param depth: depth maximum to go down the tree
-        :return: best action"""
+        :param alpha: the current best value achievable by A
+        :param beta: the current best value achievable by B
+        :param player: current player
+        :return: the minimax value of the state
+        """
+        children = state.compute_and_get_children()
 
-        """
-        if depth == 0 or actions(state, player) == None:
-            return 
-        else
-            if player == 0:
-                value = float("-inf")
-                best_action = None
-                for action in actions(state, player)):
-                    v = self.minimax(action, 1, depth-1)
-                    value = max(value, self.minimax(child, 1, depth-1))
-                return best_action
-            else:
-                value = float("inf")
-                best_action = None
-                for action in actions(state, player)):
-                    value = min(value, self.minimax(child, 0, depth-1))
-                return best_action
-        """
-        pass
+        if depth == 0 or len(children) == 0:
+            value = gamma(player, state)
+
+        elif player == 0:
+            value = float("-inf")
+            for action in children:
+                value = max(value, self.alphabeta(
+                    action, depth-1, alpha, beta, 1 - player))
+                alpha = max(alpha, value)
+                if alpha >= beta:
+                    break
+        else:
+            value = float("inf")
+            for action in children:
+                value = min(value, self.alphabeta(
+                    action, depth-1, alpha, beta, 1 - player))
+                beta = min(beta, value)
+                if alpha >= beta:
+                    break
+
+        return value
+
+    # TODO: Implémenter la fonction gamma (voir énoncé), finir d'implémenter alphabeta en faisant attention au type des éléments et comment fonctionne les arbres, implémenter des fonctionnalités comme un TimeOut, iterative deepening search or move ordering, repeated states checking
