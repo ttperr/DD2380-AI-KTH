@@ -52,7 +52,7 @@ class PlayerControllerMinimax(PlayerController):
 
     def search_best_next_move(self, initial_tree_node):
         """
-        Use minimax (and extensions) to find best possible next move for player 0 (green boat)
+        Use minimax (and extensions) to find the best possible next move for player 0 (green boat)
         :param initial_tree_node: Initial game tree node
         :type initial_tree_node: game_tree.Node
             (see the Node class in game_tree.py for more information!)
@@ -65,42 +65,52 @@ class PlayerControllerMinimax(PlayerController):
         # NOTE: Don't forget to initialize the children of the current node
         #       with its compute_and_get_children() method!
 
-        random_move = random.randrange(5)
-        return ACTION_TO_STR[random_move]
+        children = initial_tree_node.compute_and_get_children()
+        scores = []
+        for child in children:
+            scores.append(self.alphabeta(
+                child, 2, float("-inf"), float("inf"), 1))
 
-    def alphabeta(self, state, depth, alpha, beta, player):
+        best_move = children[scores.index(max(scores))].move
+
+        return ACTION_TO_STR[best_move]
+
+    def alphabeta(self, node, depth, alpha, beta, player):
         """
         Alpha beta pruning algorithm for the game
-        :param state: current state
-        :param children: possible actions from the current state
+        :param node: the current node
         :param depth: depth maximum to go down the tree
-        :param alpha: the current best value achievable by A
-        :param beta: the current best value achievable by B
+        :param alpha: the current best value achievable by 0
+        :param beta: the current best value achievable by 1
         :param player: current player
         :return: the minimax value of the state
         """
-        children = state.compute_and_get_children()
+        key = self.hashkey(node)
+
+        children = node.compute_and_get_children()
+        children.sort(key=self.heuristic, reverse=True)
 
         if depth == 0 or len(children) == 0:
-            value = gamma(player, state)
+            value = self.heuristic(node)
 
         elif player == 0:
             value = float("-inf")
-            for action in children:
+            for child in children:
                 value = max(value, self.alphabeta(
-                    action, depth-1, alpha, beta, 1 - player))
+                    child, depth-1, alpha, beta, 1 - player))
                 alpha = max(alpha, value)
                 if alpha >= beta:
                     break
         else:
             value = float("inf")
-            for action in children:
+            for child in children:
                 value = min(value, self.alphabeta(
-                    action, depth-1, alpha, beta, 1 - player))
+                    child, depth-1, alpha, beta, 1 - player))
                 beta = min(beta, value)
                 if alpha >= beta:
                     break
 
+        visited.update({key: (depth, value)})
         return value
 
-    # TODO: Implémenter la fonction gamma (voir énoncé), finir d'implémenter alphabeta en faisant attention au type des éléments et comment fonctionne les arbres, implémenter des fonctionnalités comme un TimeOut, iterative deepening search or move ordering, repeated states checking
+    # TODO: Implémenter la fonction heuristics (voir énoncé), implémenter des fonctionnalités iterative deepening search or move ordering, repeated states checking
