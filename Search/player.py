@@ -85,7 +85,8 @@ class PlayerControllerMinimax(PlayerController):
         :param player: current player
         :return: the minimax value of the state
         """
-        key = self.hashkey(node)
+
+        # key = self.compute_hash(node)
 
         children = node.compute_and_get_children()
         children.sort(key=self.heuristic, reverse=True)
@@ -110,7 +111,43 @@ class PlayerControllerMinimax(PlayerController):
                 if alpha >= beta:
                     break
 
-        visited.update({key: (depth, value)})
+        # visited.update({key: (depth, value)})
         return value
 
-    # TODO: Implémenter la fonction heuristics (voir énoncé), implémenter des fonctionnalités iterative deepening search or move ordering, repeated states checking
+    def compute_hash(self, node):
+        """
+        Compute the hash of the node
+        :param node: the node to hash
+        :return: the hash of the node
+        """
+        pass
+
+    def heuristic(self, node):
+        """
+        Compute the heuristic of the node
+        :param node: the node to compute the heuristic
+        :return: the heuristic of the node
+        """
+
+        score_diff = node.state.player_scores[0] - node.state.player_scores[1]
+
+        h = 0
+        for fish in node.state.fish_positions:
+            distance = self.distance_from_catch(
+                node.state.fish_positions[fish], node.state.hook_positions[0])
+            if distance == 0 and node.state.fish_scores[fish] > 0:
+                return float("inf")
+            h = max(h, node.state.fish_scores[fish] / distance)
+        return score_diff + h
+
+    def distance_from_catch(self, fish_pos, hook_pos):
+        """
+        Compute the distance between the fish and the hook using Manhattan distance because we can only move in 4 directions
+        :param fish_pos: the position of the fish
+        :param hook_pos: the position of the hook
+        :return: the distance between the fish and the hook
+        """
+        x = abs(fish_pos[0] - hook_pos[0])
+        return min(x, 20 - x) + abs(fish_pos[1] - hook_pos[1])
+
+    # TODO: implémenter des fonctionnalités iterative deepening search, repeated states checking
