@@ -150,4 +150,4 @@ class PlayerControllerMinimax(PlayerController):
         x = abs(fish_pos[0] - hook_pos[0])
         return min(x, 20 - x) + abs(fish_pos[1] - hook_pos[1])
 
-    # TODO: implémenter des fonctionnalités iterative deepening search, repeated states checking
+    # TODO: implémenter des fonctionnalités iterative deepening search, repeated states checking, ça sert à rien de choper un poisson choper par l'adversaire, améliorer l'heuristique
