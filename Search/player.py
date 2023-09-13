@@ -122,7 +122,10 @@ class PlayerControllerMinimax(PlayerController):
         :param node: the node to hash
         :return: the hash of the node
         """
-        pass
+
+        heuristic = self.heuristic(node)
+
+        return hash((node.state.hook_positions[0], node.state.hook_positions[1], heuristic))
 
     def heuristic(self, node):
         """
@@ -133,14 +136,15 @@ class PlayerControllerMinimax(PlayerController):
 
         score_diff = node.state.player_scores[0] - node.state.player_scores[1]
 
-        h = 0
+        estimation = 0
         for fish in node.state.fish_positions:
             distance = self.distance_from_catch(
                 node.state.fish_positions[fish], node.state.hook_positions[0])
             if distance == 0 and node.state.fish_scores[fish] > 0:
                 return float("inf")
-            h = max(h, node.state.fish_scores[fish] * np.exp(-distance/10))
-        return score_diff + h
+            estimation = max(
+                estimation, node.state.fish_scores[fish] * np.exp(-distance/10))
+        return score_diff + estimation
 
     def distance_from_catch(self, fish_pos, hook_pos):
         """
