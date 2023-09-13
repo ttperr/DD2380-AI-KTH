@@ -5,6 +5,8 @@ from fishing_game_core.game_tree import Node
 from fishing_game_core.player_utils import PlayerController
 from fishing_game_core.shared import ACTION_TO_STR
 
+import numpy as np
+
 
 class PlayerControllerHuman(PlayerController):
     def player_loop(self):
@@ -137,7 +139,7 @@ class PlayerControllerMinimax(PlayerController):
                 node.state.fish_positions[fish], node.state.hook_positions[0])
             if distance == 0 and node.state.fish_scores[fish] > 0:
                 return float("inf")
-            h = max(h, node.state.fish_scores[fish] / distance)
+            h = max(h, node.state.fish_scores[fish] * np.exp(-distance/10))
         return score_diff + h
 
     def distance_from_catch(self, fish_pos, hook_pos):
