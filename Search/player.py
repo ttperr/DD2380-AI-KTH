@@ -53,7 +53,6 @@ class PlayerControllerMinimax(PlayerController):
             # Execute next action
             self.sender({"action": best_move, "search_time": None})
 
-    
     def search_best_next_move(self, initial_tree_node):
         """
         Use minimax (and extensions) to find the best possible next move for player 0 (green boat)
@@ -81,7 +80,7 @@ class PlayerControllerMinimax(PlayerController):
         initial_time = time.time()
 
         return ACTION_TO_STR[self.iterative_deepening_search(initial_tree_node, initial_time)]
-    
+
     def alphabeta(self, node, depth, alpha, beta, player, initial_time, visited):
         """
         Alpha beta pruning algorithm for the game
@@ -98,15 +97,15 @@ class PlayerControllerMinimax(PlayerController):
         k = self.compute_hash(node)
         if k in visited and visited[k][0] >= depth:
             return visited[k][1]
-        
-        children = node.compute_and_get_children()
-        children.sort(key=self.heuristic, reverse=True)
 
-        if time.time() - initial_time > 0.055:
+        children = node.compute_and_get_children()
+        children.sort(key=self.evaluation, reverse=True)
+
+        if time.time() - initial_time >= 0.055:
             raise TimeoutError
-        
+
         if depth == 0 or len(children) == 0:
-            value = self.heuristic(node)
+            value = self.evaluation(node)
 
         elif player == 0:
             value = float("-inf")
@@ -124,7 +123,7 @@ class PlayerControllerMinimax(PlayerController):
                 beta = min(beta, value)
                 if alpha >= beta:
                     break
-        
+
         key = self.compute_hash(node)
         visited.update({key: (depth, value)})
         return value
@@ -148,8 +147,8 @@ class PlayerControllerMinimax(PlayerController):
             player_scores.append(element)
 
         return hash((tuple(position_hook), tuple(position_fish), tuple(player_scores)))
-    
-    def heuristic(self, node):
+
+    def evaluation(self, node):
         """
         Compute the heuristic of the node
         :param node: the node to compute the heuristic
@@ -164,8 +163,11 @@ class PlayerControllerMinimax(PlayerController):
                 node.state.fish_positions[fish], node.state.hook_positions[0])
             if distance == 0 and node.state.fish_scores[fish] > 0:
                 return float("inf")
-            estimation = max(
-                estimation, node.state.fish_scores[fish] * np.exp(-distance/10))
+            elif self.distance_from_catch(node.state.fish_positions[fish], node.state.hook_positions[1]) == 0:
+                return float("-inf")
+            else:
+                estimation = max(
+                    estimation, node.state.fish_scores[fish] * np.exp(-distance))
         return score_diff + estimation
 
     def distance_from_catch(self, fish_pos, hook_pos):
@@ -177,7 +179,7 @@ class PlayerControllerMinimax(PlayerController):
         """
         x = abs(fish_pos[0] - hook_pos[0])
         return min(x, 20 - x) + abs(fish_pos[1] - hook_pos[1])
-    
+
     def iterative_deepening_search(self, node, initial_time):
         """
         Iterative deepening search algorithm
@@ -187,7 +189,6 @@ class PlayerControllerMinimax(PlayerController):
         :return: the best move
         """
 
-        
         depth = 1
         best_move = 0
         visited = {}
@@ -202,9 +203,5 @@ class PlayerControllerMinimax(PlayerController):
                 depth += 1
             except TimeoutError:
                 break
-        
+
         return best_move
-
-    # TODO: ça sert à rien de choper un poisson choper par l'adversaire, améliorer l'heuristique
-
-
