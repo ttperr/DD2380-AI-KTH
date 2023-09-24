@@ -1,42 +1,14 @@
 ######### Utils #########
 
 def multiply(A, B):
-    if hasattr(A[0], "__len__") or hasattr(B[0], "__len__"):
-        return [[sum(a*b for a, b in zip(A_row, B_col)) for B_col in zip(*B)] for A_row in A]
-    else:
-        return [sum(a*b for a, b in zip(A, B_col)) for B_col in zip(*B)]
-
-
-def multiply_scalar(A, scalar):
-    return [[a*scalar for a in A_row] for A_row in A]
-
-
-def add(A, B):
-    return [[a+b for a, b in zip(A_row, B_row)] for A_row, B_row in zip(A, B)]
-
-
-def subtract(A, B):
-    return [[a-b for a, b in zip(A_row, B_row)] for A_row, B_row in zip(A, B)]
-
-
-def transpose(A):
-    return [[A[j][i] for j in range(len(A))] for i in range(len(A[0]))]
-
-
-def print_matrix(A):
-    for row in A:
-        print(row)
-    print()
+    return [[sum(a*b for a, b in zip(A_row, B_col)) for B_col in zip(*B)] for A_row in A]
 
 
 def get_output(A):
     out = ""
-    if hasattr(A[0], "__len__"):
-        out += str(len(A)) + " " + str(len(A[0])) + " "
-        for row in A:
-            out += " ".join(map(str, row)) + " "
-    else:
-        out += str(len(A)) + " " + " ".join(map(str, A)) + " "
+    out += str(len(A)) + " " + str(len(A[0])) + " "
+    for row in A:
+        out += " ".join(map(str, row)) + " "
     return out
 
 
@@ -84,7 +56,6 @@ def main():
     # Read data
     A, B, pi, obs = read_input()
 
-    # Compute for Grade D
     print(forward_algorithm(A, B, pi, obs))
 
 
