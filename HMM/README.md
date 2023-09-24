@@ -30,7 +30,7 @@ Because the observations are independent from each other, so the probability of 
 
 > **Question 5** How many values are stored in the matrices δ and δ^idx respectively?
 
-*Answer*
+$T \times k$ where $T$ is the number of observations and $k$ the number of observations possible.
 
 > **Question 6** Why we do we need to divide by the sum over the final α values for the di-gamma function?
 

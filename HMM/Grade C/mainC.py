@@ -29,6 +29,11 @@ def print_matrix(A):
     print()
 
 
+def print_list(A):
+    for a in A:
+        print(a, end=" ")
+
+
 def get_output(A):
     out = ""
     if hasattr(A[0], "__len__"):
@@ -77,6 +82,31 @@ def forward_algorithm(A, B, pi, obs):
                      for j in range(len(A))]) * B[i][obs[t]] for i in range(len(A))])
     return sum(alpha[-1])
 
+
+def viterbi(A, B, pi, obs):
+    n = len(A)
+    k = len(B[0])
+    T = len(obs)
+
+    delta = [[0 for _ in range(k)] for _ in range(T)]
+    delta_idx = [[0 for _ in range(k)] for _ in range(T)]
+    for i in range(n):
+        delta[0][i] = pi[0][i] * B[i][obs[0]]
+
+    for t in range(1, T):
+        for j in range(n):
+            delta[t][j] = max([delta[t-1][i] * A[i][j]
+                               for i in range(n)]) * B[j][obs[t]]
+            delta_idx[t][j] = max(
+                range(n), key=lambda i: delta[t-1][i] * A[i][j])
+
+    X = [0 for _ in range(T)]
+    X[-1] = max(range(n), key=lambda i: delta[T-1][i])
+    for t in range(T-2, -1, -1):
+        X[t] = delta_idx[t+1][X[t+1]]
+    return X
+
+
 ######### Main #########
 
 
@@ -84,8 +114,8 @@ def main():
     # Read data
     A, B, pi, obs = read_input()
 
-    # Compute for Grade D
-    print(forward_algorithm(A, B, pi, obs))
+    # Compute for Grade E
+    print_list(viterbi(A, B, pi, obs))
 
 
 if __name__ == "__main__":
