@@ -6,19 +6,27 @@
 
 > **Question 1** This problem can be formulated in matrix form. Please specify the initial probability vector π, the transition probability matrix A and the observation probability matrix B
 
-*Answers
+$$
+\pi = \begin{bmatrix} 0.5 \\ 0.5 \end{bmatrix} ;
+A = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix};
+B = \begin{bmatrix} 0.9 & 0.1 \\ 0.5 & 0.5 \end{bmatrix}
+$$
 
 > **Question 2** What is the result of this operation?
 
-*Answer*
+$$
+\pi \times A = \begin{bmatrix} 0.5 \\ 0.5 \end{bmatrix} \times \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 0.5 & 0.5 \end{bmatrix}
+$$
 
 > **Question 3** What is the result of this operation?
 
-*Answer*
+$$
+\pi \times A \times B = \begin{bmatrix} 0.5 \\ 0.5 \end{bmatrix} \times \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} \times \begin{bmatrix} 0.9 & 0.1 \\ 0.5 & 0.5 \end{bmatrix} = \begin{bmatrix} 0.7 \\ 0.3 \end{bmatrix}
+$$
 
 > **Question 4** Why is it valid to substitute O1:t =o1:t with Ot =ot when we condition on the state Xt =xi ?
 
-*Answer*
+Because the observations are independent from each other, so the probability of observing the sequence O1:t =o1:t is the same as the probability of observing the sequence Ot =ot.
 
 > **Question 5** How many values are stored in the matrices δ and δ^idx respectively?
 
