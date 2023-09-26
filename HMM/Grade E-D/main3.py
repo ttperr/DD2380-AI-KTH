@@ -1,5 +1,8 @@
 ######### Utils #########
 
+import time
+
+
 def multiply(A, B):
     return [[sum(a*b for a, b in zip(A_row, B_col)) for B_col in zip(*B)] for A_row in A]
 
@@ -124,12 +127,23 @@ def re_estimate(A, B, pi, obs):
     beta = beta_pass(A, B, obs, scalers)
     gamma, di_gamma = get_gammas(A, B, alpha, beta, obs)
 
-    new_pi = [[gamma[0][i]] for i in range(len(A))]
+    new_pi = [[gamma[0][i] for i in range(len(A))]]
     new_A = [[sum([di_gamma[t][i][j] for t in range(len(obs)-1)])
               / sum([gamma[t][i] for t in range(len(obs)-1)]) for j in range(len(A))] for i in range(len(A))]
     new_B = [[sum([gamma[t][j] for t in range(len(obs)) if obs[t] == k])
               / sum([gamma[t][j] for t in range(len(obs))]) for k in range(len(B[0]))] for j in range(len(A))]
 
+    return new_A, new_B, new_pi
+
+
+def baum_welch(A, B, pi, obs):
+    new_A, new_B, new_pi = re_estimate(A, B, pi, obs)
+    delta = time.time()
+    while True:
+        A, B, pi = new_A, new_B, new_pi
+        new_A, new_B, new_pi = re_estimate(A, B, pi, obs)
+        if time.time() - delta > 0.8:
+            break
     return new_A, new_B, new_pi
 
 ######### Main #########
@@ -139,7 +153,7 @@ def main():
     # Read data
     A, B, pi, obs = read_input()
 
-    new_A, new_B, new_pi = re_estimate(A, B, pi, obs)
+    new_A, new_B, new_pi = baum_welch(A, B, pi, obs)
 
     print(get_output(new_A))
     print(get_output(new_B))
