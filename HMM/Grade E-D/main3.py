@@ -107,28 +107,22 @@ def beta_pass(A, B, obs, scalers):
     return beta
 
 
-def get_di_gamma(A, B, alpha, beta, obs):
+def get_gammas(A, B, alpha, beta, obs):
+    gamma = []
     di_gamma = []
-    sum_alpha = sum(alpha[-1])
+
     for t in range(len(obs)-1):
-        di_gamma.append([[alpha[t][i] * A[i][j] * B[j][obs[t+1]] * beta[t+1]
-                        [j] / sum_alpha for j in range(len(A))] for i in range(len(A))])
-    return di_gamma
-
-
-def get_gamma(di_gamma, alpha):
-    return [[sum(di_gamma[t][i]) for i in range(len(di_gamma[0]))] for t in range(len(di_gamma))] + [alpha[-1]]
+        di_gamma.append([[alpha[t][i] * A[i][j] * B[j][obs[t+1]]
+                          * beta[t+1][j] for j in range(len(A))] for i in range(len(A))])
+        gamma.append([sum(di_gamma[t][i]) for i in range(len(A))])
+    gamma.append(alpha[-1])
+    return gamma, di_gamma
 
 
 def re_estimate(A, B, pi, obs):
     alpha, scalers = alpha_pass(A, B, pi, obs)
     beta = beta_pass(A, B, obs, scalers)
-    print(alpha[-1])
-    print(beta[0])
-    di_gamma = get_di_gamma(A, B, alpha, beta, obs)
-    gamma = get_gamma(di_gamma, alpha)
-
-    print("\n#### Answer ####\n")
+    gamma, di_gamma = get_gammas(A, B, alpha, beta, obs)
 
     new_pi = [[gamma[0][i]] for i in range(len(A))]
     new_A = [[sum([di_gamma[t][i][j] for t in range(len(obs)-1)])
