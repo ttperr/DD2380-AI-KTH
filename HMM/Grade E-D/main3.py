@@ -1,5 +1,6 @@
 ######### Utils #########
 
+import math
 import time
 
 
@@ -133,17 +134,28 @@ def re_estimate(A, B, pi, obs):
     new_B = [[sum([gamma[t][j] for t in range(len(obs)) if obs[t] == k])
               / sum([gamma[t][j] for t in range(len(obs))]) for k in range(len(B[0]))] for j in range(len(A))]
 
-    return new_A, new_B, new_pi
+    return new_A, new_B, new_pi, scalers
 
 
-def baum_welch(A, B, pi, obs):
-    new_A, new_B, new_pi = re_estimate(A, B, pi, obs)
-    delta = time.time()
+def compute_log_likelihood(scalers):
+    return -sum([math.log(s) for s in scalers])
+
+
+def baum_welch(A, B, pi, obs, max_time=0.8):
+    new_A, new_B, new_pi, scalers = re_estimate(A, B, pi, obs)
+    previous_log_likelihood = float("-inf")
+
+    start_time = time.time()
     while True:
         A, B, pi = new_A, new_B, new_pi
-        new_A, new_B, new_pi = re_estimate(A, B, pi, obs)
-        if time.time() - delta > 0.8:
+        current_log_likelihood = compute_log_likelihood(scalers)
+
+        if previous_log_likelihood > current_log_likelihood or time.time() - start_time > max_time:
             break
+
+        previous_log_likelihood = current_log_likelihood
+        new_A, new_B, new_pi, scalers = re_estimate(A, B, pi, obs)
+
     return new_A, new_B, new_pi
 
 ######### Main #########
