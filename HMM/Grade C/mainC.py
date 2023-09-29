@@ -4,6 +4,7 @@ import math
 import time
 import numpy as np
 
+
 def multiply(A, B):
     return [[sum(a*b for a, b in zip(A_row, B_col)) for B_col in zip(*B)] for A_row in A]
 
@@ -18,7 +19,15 @@ def get_output(A):
 
 def print_list(L):
     for l in L:
-        print(l, end=" ")
+        print("{:.3f}".format(l), end=" ")
+        # print(l, end=" ")
+
+
+def print_matrix(M):
+    for row in M:
+        print_list(row)
+        print()
+    print()
 
 
 def read_line(line_char):
@@ -170,29 +179,45 @@ def main():
 
     obs = read_input()
 
-    A_ini = np.random.rand(3, 3)
+    # Question 7
+    # for i in range(100, 1000, 100):
+    #     obs_red = obs[:i]
+    #     new_A, new_B, new_pi = baum_welch(A, B, pi, obs_red)
+    #     print_matrix(new_A)
+    #     print_matrix(new_B)
+    #     print("number of observations: ", i, "\n")
+
+    # Question 8
+    # A_ini = np.random.rand(3, 3)
+    # A_ini /= A_ini.sum(axis=1)
+    # B_ini = np.random.rand(3, 4)
+    # B_ini[0] /= B_ini.sum(axis=1)[0]
+    # B_ini[1] /= B_ini.sum(axis=1)[1]
+    # B_ini[2] /= B_ini.sum(axis=1)[2]
+    # pi_ini = np.random.rand(1, 3)
+    # pi_ini /= pi_ini.sum(axis=1)
+    # new_A, new_B, new_pi = baum_welch(A_ini, B_ini, pi_ini, obs)
+    # print_matrix(new_A)
+    # print_matrix(new_B)
+    # print_matrix(new_pi)
+
+    # Question 9
+    n_hidden_states = 3
+    n_observation_states = 4
+    n_obs = len(obs)
+
+    A_ini = np.random.rand(n_hidden_states, n_hidden_states)
     A_ini /= A_ini.sum(axis=1)
-    B_ini = np.random.rand(3, 4)
-    B_ini[0] /= B_ini.sum(axis=1)[0]
-    B_ini[1] /= B_ini.sum(axis=1)[1]
-    B_ini[2] /= B_ini.sum(axis=1)[2]
-    pi_ini = np.random.rand(1, 3)
+    B_ini = np.random.rand(n_hidden_states, n_observation_states)
+    B_ini = [b / b.sum() for b in B_ini]
+    pi_ini = np.random.rand(1, n_hidden_states)
     pi_ini /= pi_ini.sum(axis=1)
 
-
-    #for i in range(100,1000,100):
-    #    obs_red = obs[:i]
-    #    new_A, new_B, new_pi = baum_welch(A, B, pi, obs_red)
-    #    print(get_output(new_A))
-    #    print(get_output(new_B))
-    #    print("number of observations: ", i,"\n")
-
     new_A, new_B, new_pi = baum_welch(A_ini, B_ini, pi_ini, obs)
+    print_matrix(new_A)
+    print_matrix(new_B)
+    print_matrix(new_pi)
 
-    print(get_output(new_A))
-    print(get_output(new_B))
-    print(get_output(new_pi))
-    
 
 if __name__ == "__main__":
     main()
