@@ -160,13 +160,22 @@ def baum_welch(A, B, pi, obs, max_time=0.8):
         A, B, pi = new_A, new_B, new_pi
         current_log_likelihood = compute_log_likelihood(scalers)
         if previous_log_likelihood > current_log_likelihood or time.time() - start_time > max_time:
-            print(time.time() - start_time > max_time)
+            print("Timeout ?", time.time() - start_time > max_time)
+            print("Iterations: ", iterations)
+            print("Time: ", time.time() - start_time)
             break
-
+        iterations += 1
         previous_log_likelihood = current_log_likelihood
         new_A, new_B, new_pi, scalers = re_estimate(A, B, pi, obs)
 
     return new_A, new_B, new_pi
+
+
+def BIC_score(A, B, pi, obs):
+    n = len(A)
+    k = len(B[0])
+    T = len(obs)
+    return -2 * forward_algorithm(A, B, pi, obs) + (n*n + n*k + n - 1) * math.log(T)
 
 ######### Main #########
 
@@ -202,18 +211,37 @@ def main():
     # print_matrix(new_pi)
 
     # Question 9
-    n_hidden_states = 3
-    n_observation_states = 4
-    n_obs = len(obs)
+    # n_hidden_states = range(2, 7)
+    # n_observation_states = 4
+    # n_obs = len(obs)
+    # for n in n_hidden_states:
+    #     print("number of hidden states: ", n)
+    #     A_ini = np.random.rand(n, n)
+    #     A_ini /= A_ini.sum(axis=1)
+    #     B_ini = np.random.rand(n, n_observation_states)
+    #     B_ini = [b / b.sum() for b in B_ini]
+    #     pi_ini = np.random.rand(1, n)
+    #     pi_ini /= pi_ini.sum(axis=1)
+    #     new_A, new_B, new_pi = baum_welch(
+    #         A_ini, B_ini, pi_ini, obs, max_time=100)
+    #     print_matrix(new_A)
+    #     print_matrix(new_B)
+    #     print_matrix(new_pi)
+    #     print("BIC score: ", BIC_score(new_A, new_B, new_pi, obs), "\n")
 
-    A_ini = np.random.rand(n_hidden_states, n_hidden_states)
-    A_ini /= A_ini.sum(axis=1)
-    B_ini = np.random.rand(n_hidden_states, n_observation_states)
-    B_ini = [b / b.sum() for b in B_ini]
-    pi_ini = np.random.rand(1, n_hidden_states)
-    pi_ini /= pi_ini.sum(axis=1)
-
-    new_A, new_B, new_pi = baum_welch(A_ini, B_ini, pi_ini, obs)
+    # Question 10
+    # Initialisation with diag
+    # A_ini = np.diag(np.ones(3))
+    # pi_ini = [[0, 0, 1]]
+    # new_A, new_B, new_pi = baum_welch(A_ini, B, pi_ini, obs)
+    # print_matrix(new_A)
+    # print_matrix(new_B)
+    # print_matrix(new_pi)
+    # Initialisation with close to solution
+    A_ini = [[0.7, 0.05, 0.25], [0.1, 0.8, 0.1], [0.2, 0.3, 0.5]]
+    B_ini = [[0.7, 0.2, 0.1, 0], [0.1, 0.4, 0.3, 0.2], [0, 0.1, 0.2, 0.7]]
+    pi_ini = [[1, 0, 0]]
+    new_A, new_B, new_pi = baum_welch(A_ini, B_ini, pi_ini, obs, max_time=10)
     print_matrix(new_A)
     print_matrix(new_B)
     print_matrix(new_pi)

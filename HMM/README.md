@@ -49,10 +49,12 @@ With an random initialization, we are quite far from the values of equation 3.1.
 > **Question 9** Train an HMM with different numbers of hidden states.
 > What happens if you use more or less than 3 hidden states? Why? Are three hidden states and four observations the best choice? If not, why? How can you determine the optimal setting? How does this depend on the amount of data you have?
 
-*Answer*
+If we change the number of hidden states, the algorithm seems to converge differently. Indeed, the more hidden states we have, the more time it takes to converge. The best choice is to have the same number of hidden states and observations, because it is the most simple case. To determine the optimal setting, we can use the BIC score, which is a metric that takes into account the number of parameters and the likelihood of the model. This depends on the amount of data we have, because if we have a lot of data, we can afford to have more parameters, and thus more hidden states. It seems, here, have lower hidden states could be better with only 10000 observations.
 
 > **Question 10** Initialize your Baum-Welch algorithm with a uniform distribution. How does this affect the learning?
 > Initialize your Baum-Welch algorithm with a diagonal A matrix and π = [0,0,1]. How does this affect the learning?
 > Initialize your Baum-Welch algorithm with a matrices that are close to the solution. How does this affect the learning?
 
-*Answer*
+As we saw in the question 8, the initialization with a uniform distribution often leads to a solution that is not unique and that is not close to the given solution.
+With the diagonal matrix, we have an overflows problem, so we can't use this initialization. Thus, we can't learn.
+With a matrix close to the solution, we have a solution that is close to the given solution. It's clearly a better initialization than the uniform distribution.
