@@ -164,7 +164,7 @@ def baum_welch(A, B, pi, obs, max_time=0.8):
 def main():
     # Read data
     A, B, pi, obs = read_input()
-
+    print(pi)
     new_A, new_B, new_pi = baum_welch(A, B, pi, obs)
 
     print(get_output(new_A))
