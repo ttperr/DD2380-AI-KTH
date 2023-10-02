@@ -4,6 +4,10 @@ from player_controller_hmm import PlayerControllerHMMAbstract
 from constants import *
 import random
 import math
+import time
+import sys
+
+epsilon = sys.float_info.epsilon  # avoid division by zero
 
 ### Utils ###
 
@@ -16,7 +20,8 @@ def generate_row_stochastic_matrix(n, m):
     :param m: number of columns
     :return: a n x m matrix
     """
-    matrix = [[random.random() for _ in range(m)] for _ in range(n)]
+    matrix = [[1/m + random.random() / 1000 for _ in range(m)]
+              for _ in range(n)]
     for row in matrix:
         row_sum = sum(row)
         for i in range(len(row)):
@@ -85,14 +90,14 @@ def alpha_pass(A, B, pi, obs):
     scalers = []  # introduced it to avoid underflow
 
     alpha.append([pi[0][i] * B[i][obs[0]] for i in range(len(pi[0]))])
-    scalers.append(1/sum(alpha[0]))
+    scalers.append(1/(sum(alpha[0])+epsilon))
 
     alpha[0] = [alpha_0_i * scalers[0] for alpha_0_i in alpha[0]]
 
     for t in range(1, len(obs)):
         alpha.append([sum([alpha[t-1][j] * A[j][i]
                      for j in range(len(A))]) * B[i][obs[t]] for i in range(len(A))])
-        scalers.append(1/sum(alpha[t]))
+        scalers.append(1/(sum(alpha[t]) + epsilon))
         alpha[t] = [alpha_t_i * scalers[t] for alpha_t_i in alpha[t]]
 
     return alpha, scalers
@@ -127,9 +132,9 @@ def re_estimate(A, B, pi, obs):
 
     new_pi = [[gamma[0][i] for i in range(len(A))]]
     new_A = [[sum([di_gamma[t][i][j] for t in range(len(obs)-1)])
-              / sum([gamma[t][i] for t in range(len(obs)-1)]) for j in range(len(A))] for i in range(len(A))]
+              / (sum([gamma[t][i] for t in range(len(obs)-1)]) + epsilon) for j in range(len(A))] for i in range(len(A))]
     new_B = [[sum([gamma[t][j] for t in range(len(obs)) if obs[t] == k])
-              / sum([gamma[t][j] for t in range(len(obs))]) for k in range(len(B[0]))] for j in range(len(A))]
+              / (sum([gamma[t][j] for t in range(len(obs))]) + epsilon) for k in range(len(B[0]))] for j in range(len(A))]
 
     return new_A, new_B, new_pi, scalers
 
@@ -187,8 +192,11 @@ class HiddenMarkovModel:
         Updates the model's parameters using the Baum-Welch algorithm.
         :param observations: a list of observations
         """
+        start_time = time.time()
         self.A, self.B, self.PI = baum_welch(
-            self.A, self.B, self.PI, observations)
+            self.A, self.B, self.PI, observations, max_iter=10)
+        print("     Time to update model: {:.3f}s".format(
+            time.time() - start_time))
 
     def get_most_probable_sequence(self, observations):
         """
@@ -206,6 +214,15 @@ class HiddenMarkovModel:
         """
         return forward_algorithm(self.A, self.B, self.PI, observations)
 
+    def find_most_probable_state(self, observations):
+        """
+        Returns the most probable state given a list of observations.
+        :param observations: a list of observations
+        :return: a list of states
+        """
+        alpha, _ = alpha_pass(self.A, self.B, self.PI, observations)
+        return max(range(len(alpha[-1])), key=lambda i: alpha[-1][i])
+
 
 class PlayerControllerHMM(PlayerControllerHMMAbstract):
     def init_parameters(self):
@@ -213,7 +230,10 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         In this function you should initialize the parameters you will need,
         such as the initialization of models, or fishes, among others.
         """
-        pass
+        self.models = [HiddenMarkovModel(
+            N_SPECIES, N_EMISSIONS) for _ in range(N_SPECIES)]  # done one model by species to update them when we know the species
+        self.fishes_obs = [[] for _ in range(N_FISH)]
+        self.fished_tested = [False for _ in range(N_FISH)]
 
     def guess(self, step, observations):
         """
@@ -224,11 +244,33 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         :param observations: a list of N_FISH observations, encoded as integers
         :return: None or a tuple (fish_id, fish_type)
         """
+        for i in range(N_FISH):
+            if not self.fished_tested[i]:
+                self.fishes_obs[i].append(observations[i])
 
-        # This code would make a random guess on each step:
-        # return (step % N_FISH, random.randint(0, N_SPECIES - 1))
+        # if step == 105:
+        #    for i, model in enumerate(self.models):
+        #        model.update_model(self.fishes_obs[i])
 
-        return None
+        if step < 110:
+            return None
+        else:
+            best_prob = 0
+
+            fish_id = random.choice(
+                [i for i in range(N_FISH) if not self.fished_tested[i]])
+
+            for i, model in enumerate(self.models):
+                prob = model.get_probability(
+                    self.fishes_obs[fish_id])
+                if prob > best_prob:
+                    best_prob = prob
+                    fish_type = i
+
+            print("     Guessing fish {} is of type {}".format(
+                fish_id, fish_type))
+
+            return fish_id, fish_type
 
     def reveal(self, correct, fish_id, true_type):
         """
@@ -240,4 +282,7 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         :param true_type: the correct type of the fish
         :return:
         """
-        pass
+        self.fished_tested[fish_id] = True
+        if not correct:
+            print("     Fish {} was of type {}".format(fish_id, true_type))
+            self.models[true_type].update_model(self.fishes_obs[fish_id])
