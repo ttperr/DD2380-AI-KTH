@@ -218,7 +218,7 @@ class PlayerControllerRL(PlayerController, FishesModelling):
                 # ADD YOUR CODE SNIPPET BETWEEN EX. 2.2
                 # Implement the Bellman Update equation to update Q
                 Q[s_current, action] = Q[s_current, action] + lr * (
-                    R + discount * np.nanmax(Q[s_next, :]) - Q[s_current,
+                    R + discount * np.nanmax(Q[s_next]) - Q[s_current,
                                                                action])
                 # ADD YOUR CODE SNIPPET BETWEEN EX. 2.2
 
@@ -228,7 +228,7 @@ class PlayerControllerRL(PlayerController, FishesModelling):
 
             # ADD YOUR CODE SNIPPET BETWEEN EX. 2.3
             # Compute the absolute value of the mean between the Q and Q-old
-            diff = np.mean(np.abs(Q - Q_old))
+            diff = np.abs(np.nanmean(Q - Q_old))
             # ADD YOUR CODE SNIPPET BETWEEN EX. 2.3
             Q_old[:] = Q
             print(
@@ -236,7 +236,6 @@ class PlayerControllerRL(PlayerController, FishesModelling):
                 .format(episode, steps, diff, R_total, current_total_steps))
             episode += 1
             end_episode = False
-
         return Q
 
     def get_policy(self, Q):
