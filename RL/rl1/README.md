@@ -174,3 +174,10 @@ with the following structure:
     - policy: is a dictionary whose keys are the position (x, y) of the map and the values are the actions
      "up", "down", "left" or "right".
     - exploration: Always False for this stage, so the game will understand you want to play and will start moving the diver in the interface.
+
+## Solution
+
+Let's define the properties of the FishingDerbyRL MDP:
+
+- States: The states are the positions of the diver in the map. The diver can be in any position of the map.
+- Actions: The actions are the movements of the diver. The diver can move up, down, left or right.

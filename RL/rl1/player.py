@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import random
 import numpy as np
 
 from agent import Fish
@@ -98,20 +97,20 @@ def epsilon_greedy(Q,
     if eps_type == 'constant':
         epsilon = epsilon_final
         # ADD YOUR CODE SNIPPET BETWEEN EX 4.1
-        # Implemenmt the epsilon-greedy algorithm for a constant epsilon value
+        # Implement the epsilon-greedy algorithm for a constant epsilon value
         # Use epsilon and all input arguments of epsilon_greedy you see fit
         # It is recommended you use the np.random module
         action = None
         # ADD YOUR CODE SNIPPET BETWEEN EX 4.1
 
     elif eps_type == 'linear':
-        # ADD YOUR CODE SNIPPET BETWEENEX  4.2
-        # Implemenmt the epsilon-greedy algorithm for a linear epsilon value
+        # ADD YOUR CODE SNIPPET BETWEEN EX  4.2
+        # Implement the epsilon-greedy algorithm for a linear epsilon value
         # Use epsilon and all input arguments of epsilon_greedy you see fit
         # use the ScheduleLinear class
         # It is recommended you use the np.random module
         action = None
-        # ADD YOUR CODE SNIPPET BETWEENEX  4.2
+        # ADD YOUR CODE SNIPPET BETWEEN EX  4.2
 
     else:
         raise "Epsilon greedy type unknown"
@@ -282,6 +281,7 @@ class PlayerControllerRandom(PlayerController):
         end_episode = False
         # ADD YOUR CODE SNIPPET BETWEEN EX. 1.2
         # Initialize a numpy array with ns state rows and na state columns with zeros
+        n = np.zeros((ns, na))
         # ADD YOUR CODE SNIPPET BETWEEN EX. 1.2
 
         while episode <= self.episode_max:
@@ -294,7 +294,8 @@ class PlayerControllerRandom(PlayerController):
 
                 # ADD YOUR CODE SNIPPET BETWEEN EX. 1.2
                 # Chose an action from all possible actions and add to the counter of actions per state
-                action = None
+                action = np.random.choice(possible_actions)
+                n[s_current, action] += 1
                 # ADD YOUR CODE SNIPPET BETWEEN EX. 1.2
 
                 action_str = self.action_list[action]
