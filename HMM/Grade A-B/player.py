@@ -195,8 +195,7 @@ class HiddenMarkovModel:
         start_time = time.time()
         self.A, self.B, self.PI = baum_welch(
             self.A, self.B, self.PI, observations, max_iter=10)
-        print("     Time to update model: {:.3f}s".format(
-            time.time() - start_time))
+        # print("     Time to update model: {:.3f}s".format(time.time() - start_time))
 
     def get_most_probable_sequence(self, observations):
         """
@@ -231,7 +230,7 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         such as the initialization of models, or fishes, among others.
         """
         self.models = [HiddenMarkovModel(
-            N_SPECIES, N_EMISSIONS) for _ in range(N_SPECIES)]  # done one model by species to update them when we know the species
+            1, N_EMISSIONS) for _ in range(N_SPECIES)]  # done one model by species to update them when we know the species and each one got 1 state that describe if the fish is of this species or not
         self.fishes_obs = [[] for _ in range(N_FISH)]
         self.fished_tested = [False for _ in range(N_FISH)]
 
@@ -248,11 +247,7 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
             if not self.fished_tested[i]:
                 self.fishes_obs[i].append(observations[i])
 
-        # if step == 105:
-        #    for i, model in enumerate(self.models):
-        #        model.update_model(self.fishes_obs[i])
-
-        if step < 110:
+        if step < 110: # 180 steps - 70 guesses
             return None
         else:
             best_prob = 0
@@ -267,8 +262,7 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
                     best_prob = prob
                     fish_type = i
 
-            print("     Guessing fish {} is of type {}".format(
-                fish_id, fish_type))
+            # print("     Guessing fish {} is of type {}".format(fish_id, fish_type))
 
             return fish_id, fish_type
 
@@ -284,5 +278,5 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         """
         self.fished_tested[fish_id] = True
         if not correct:
-            print("     Fish {} was of type {}".format(fish_id, true_type))
+            # print("     Fish {} was of type {}".format(fish_id, true_type))
             self.models[true_type].update_model(self.fishes_obs[fish_id])
