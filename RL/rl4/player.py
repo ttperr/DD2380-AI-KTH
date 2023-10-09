@@ -113,11 +113,12 @@ def epsilon_greedy(Q,
         # Use epsilon and all input arguments of epsilon_greedy you see fit
         # use the ScheduleLinear class
         # It is recommended you use the np.random module
-        epsilon = epsilon_initial + (epsilon_final - epsilon_initial) * current_total_steps / anneal_timesteps
+        SL = ScheduleLinear(anneal_timesteps, epsilon_final, epsilon_initial)
+        epsilon = SL.value(current_total_steps)
         if np.random.uniform(0, 1) < epsilon:
             action = np.random.choice(all_actions)
         else:
-            action = np.argmax(Q[state])
+            action = np.nanargmax(Q[state])
         # ADD YOUR CODE SNIPPET BETWEEN EX  4.2
 
     else:
@@ -363,5 +364,5 @@ class ScheduleLinear(object):
     def value(self, t):
         # ADD YOUR CODE SNIPPET BETWEEN EX 4.2
         # Return the annealed linear value
-        return self.initial_p
+        return self.initial_p + (self.final_p - self.initial_p) * t / self.schedule_timesteps
         # ADD YOUR CODE SNIPPET BETWEEN EX 4.2
