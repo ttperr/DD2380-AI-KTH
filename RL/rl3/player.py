@@ -98,20 +98,20 @@ def epsilon_greedy(Q,
     if eps_type == 'constant':
         epsilon = epsilon_final
         # ADD YOUR CODE SNIPPET BETWEEN EX 4.1
-        # Implemenmt the epsilon-greedy algorithm for a constant epsilon value
+        # Implement the epsilon-greedy algorithm for a constant epsilon value
         # Use epsilon and all input arguments of epsilon_greedy you see fit
         # It is recommended you use the np.random module
         action = None
         # ADD YOUR CODE SNIPPET BETWEEN EX 4.1
 
     elif eps_type == 'linear':
-        # ADD YOUR CODE SNIPPET BETWEENEX  4.2
-        # Implemenmt the epsilon-greedy algorithm for a linear epsilon value
+        # ADD YOUR CODE SNIPPET BETWEEN EX  4.2
+        # Implement the epsilon-greedy algorithm for a linear epsilon value
         # Use epsilon and all input arguments of epsilon_greedy you see fit
         # use the ScheduleLinear class
         # It is recommended you use the np.random module
         action = None
-        # ADD YOUR CODE SNIPPET BETWEENEX  4.2
+        # ADD YOUR CODE SNIPPET BETWEEN EX  4.2
 
     else:
         raise "Epsilon greedy type unknown"
