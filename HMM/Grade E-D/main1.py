@@ -42,8 +42,7 @@ def emissions_probability(A, B, pi):
 
 
 def forward_algorithm(A, B, pi, obs):
-    alpha = []
-    alpha.append([pi[0][i] * B[i][obs[0]] for i in range(len(pi[0]))])
+    alpha = [[pi[0][i] * B[i][obs[0]] for i in range(len(pi[0]))]]
     for t in range(1, len(obs)):
         alpha.append([sum([alpha[t-1][j] * A[j][i]
                      for j in range(len(A))]) * B[i][obs[t]] for i in range(len(A))])

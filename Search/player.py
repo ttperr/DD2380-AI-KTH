@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-import random
+
+import time
+
+import numpy as np
 
 from fishing_game_core.game_tree import Node
 from fishing_game_core.player_utils import PlayerController
 from fishing_game_core.shared import ACTION_TO_STR
-
-import numpy as np
-import time
 
 
 class PlayerControllerHuman(PlayerController):
@@ -25,6 +25,61 @@ class PlayerControllerHuman(PlayerController):
             msg = self.receiver()
             if msg["game_over"]:
                 return
+
+
+def compute_hash(node):
+    """
+    Compute the hash of the node
+    :param node: the node to hash
+    :return: the hash of the node
+    """
+    position_fish = []
+    position_hook = []
+    player_scores = []
+    for element in node.state.hook_positions.items():
+        position_hook.append(element)
+
+    for element in node.state.get_fish_positions().items():
+        position_fish.append(element)
+
+    for element in node.state.player_scores.items():
+        player_scores.append(element)
+
+    return hash((tuple(position_hook), tuple(position_fish), tuple(player_scores)))
+
+
+def distance_from_catch(fish_pos, hook_pos):
+    """
+    Compute the distance between the fish and the hook using Manhattan distance because we can only move in 4 directions
+    :param fish_pos: the position of the fish
+    :param hook_pos: the position of the hook
+    :return: the distance between the fish and the hook
+    """
+    x = abs(fish_pos[0] - hook_pos[0])
+    return min(x, 20 - x) + abs(fish_pos[1] - hook_pos[1])
+
+
+def evaluation(node):
+    """
+    Compute the heuristic of the node
+    :param node: the node to compute the heuristic
+    :return: the heuristic of the node
+    """
+
+    score_diff = node.state.player_scores[0] - node.state.player_scores[1]
+
+    estimation = 0
+    for fish in node.state.fish_positions:
+        distance = distance_from_catch(
+            node.state.fish_positions[fish], node.state.hook_positions[0])
+        if distance == 0 and node.state.fish_scores[fish] > 0:
+            return float("inf")
+        elif distance_from_catch(node.state.fish_positions[fish], node.state.hook_positions[1]) == 0:
+            return float("-inf")
+        else:
+            estimation = max(
+                estimation, node.state.fish_scores[fish] * np.exp(-distance))
+    return score_diff + estimation
 
 
 class PlayerControllerMinimax(PlayerController):
@@ -94,18 +149,18 @@ class PlayerControllerMinimax(PlayerController):
         :return: the minimax value of the state
         """
 
-        k = self.compute_hash(node)
+        k = compute_hash(node)
         if k in visited and visited[k][0] >= depth:
             return visited[k][1]
 
         children = node.compute_and_get_children()
-        children.sort(key=self.evaluation, reverse=True)
+        children.sort(key=evaluation, reverse=True)
 
         if time.time() - initial_time >= 0.055:
             raise TimeoutError
 
         if depth == 0 or len(children) == 0:
-            value = self.evaluation(node)
+            value = evaluation(node)
 
         elif player == 0:
             value = float("-inf")
@@ -124,68 +179,15 @@ class PlayerControllerMinimax(PlayerController):
                 if alpha >= beta:
                     break
 
-        key = self.compute_hash(node)
+        key = compute_hash(node)
         visited.update({key: (depth, value)})
         return value
-
-    def compute_hash(self, node):
-        """
-        Compute the hash of the node
-        :param node: the node to hash
-        :return: the hash of the node
-        """
-        position_fish = []
-        position_hook = []
-        player_scores = []
-        for element in node.state.hook_positions.items():
-            position_hook.append(element)
-
-        for element in node.state.get_fish_positions().items():
-            position_fish.append(element)
-
-        for element in node.state.player_scores.items():
-            player_scores.append(element)
-
-        return hash((tuple(position_hook), tuple(position_fish), tuple(player_scores)))
-
-    def evaluation(self, node):
-        """
-        Compute the heuristic of the node
-        :param node: the node to compute the heuristic
-        :return: the heuristic of the node
-        """
-
-        score_diff = node.state.player_scores[0] - node.state.player_scores[1]
-
-        estimation = 0
-        for fish in node.state.fish_positions:
-            distance = self.distance_from_catch(
-                node.state.fish_positions[fish], node.state.hook_positions[0])
-            if distance == 0 and node.state.fish_scores[fish] > 0:
-                return float("inf")
-            elif self.distance_from_catch(node.state.fish_positions[fish], node.state.hook_positions[1]) == 0:
-                return float("-inf")
-            else:
-                estimation = max(
-                    estimation, node.state.fish_scores[fish] * np.exp(-distance))
-        return score_diff + estimation
-
-    def distance_from_catch(self, fish_pos, hook_pos):
-        """
-        Compute the distance between the fish and the hook using Manhattan distance because we can only move in 4 directions
-        :param fish_pos: the position of the fish
-        :param hook_pos: the position of the hook
-        :return: the distance between the fish and the hook
-        """
-        x = abs(fish_pos[0] - hook_pos[0])
-        return min(x, 20 - x) + abs(fish_pos[1] - hook_pos[1])
 
     def iterative_deepening_search(self, node, initial_time):
         """
         Iterative deepening search algorithm
         :param node: the current node
         :param initial_time: the time at the beginning of the search
-        :param visited: the visited nodes
         :return: the best move
         """
 
